@@ -25,6 +25,12 @@
 ; 17 :produto/slug /telefone           ID_TX     operacao
 ; 17 :produto/preco 8888.88            ID_TX     operacao
 
+; 45 :produto/nome Telefone Caro       ID_TX     true
+; 45 :produto/slug /telefone           ID_TX     true
+; 45 :produto/preco 8888.88            ID_TX     true
+
+; 45 :produto/preco 8888.88            ID_TX     false
+; 45 :produto/preco 0.1                ID_TX     true
 (def schema [{:db/ident       :produto/nome
               :db/valueType   :db.type/string
               :db/cardinality :db.cardinality/one

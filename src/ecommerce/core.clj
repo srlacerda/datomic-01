@@ -29,3 +29,30 @@
 
 (d/q '[:find ?entidade
        :where [?entidade :produto/nome]] db)
+
+; o datomic suporte somente um dos identificadores, claro, não foi imposta nenhuma restrição
+(let [calculadora {:produto/nome "Calculadora com 4 operacoes"}]
+  (d/transact conn [calculadora]))
+
+; não funciona pois se você quer algo "vazio", é só não colocar.
+;(let [radio-relogio {:produto/nome "Radio com relogio" :produto/slug nil}]
+;  (d/transact conn [radio-relogio]))
+
+
+
+; 45 :produto/nome Telefone Caro       ID_TX     true
+; 45 :produto/slug /telefone           ID_TX     true
+; 45 :produto/preco 8888.88            ID_TX     true
+
+; 45 :produto/preco 8888.88            ID_TX     false
+; 45 :produto/preco 0.1                ID_TX     true
+(let [celular-barato (model/novo-produto "Celular Barato", "/celular-barato", 888888.10M)
+      resultado @(d/transact conn [celular-barato])
+      ;id-entidade (first (vals (:tempids resultado)))
+      id-entidade (-> resultado :tempids vals first)]
+  (pprint resultado)
+  (pprint @(d/transact conn [[:db/add id-entidade :produto/preco 0.1M]]))
+  (pprint @(d/transact conn [[:db/retract id-entidade :produto/slug "/celular-barato"]]))
+  )
+
+(db/apaga-banco)
