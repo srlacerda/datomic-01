@@ -51,6 +51,17 @@
   (d/q '[:find ?entidade
          :where [?entidade :produto/nome]] db))
 
+; pull explicito atributo a atributo
+(defn todos-os-produtos [db]
+  (d/q '[:find (pull ?entidade [:produto/nome :produto/preco :produto/slug])
+         :where [?entidade :produto/nome]] db))
+
+
+; pull generico, vantagem preguica, desvantagem pode trazer mais do que eu queira
+(defn todos-os-produtos [db]
+  (d/q '[:find (pull ?entidade [*])
+         :where [?entidade :produto/nome]] db))
+
 ; no sql eh comum fazer:
 ; String sql - "meu codigo sql"
 ; conexao.query(sql)
@@ -86,9 +97,16 @@
 
 (defn todos-os-produtos-por-preco [db]
   (d/q '[:find ?nome, ?preco
+         :keys nome, preco
          :where [?produto :produto/preco ?preco]
                 [?produto :produto/nome ?nome]] db))
 
+; estou sendo explicito nos campos 1 a 1
+(defn todos-os-produtos-por-preco [db]
+  (d/q '[:find ?nome, ?preco
+         :keys produto/nome, produto/preco
+         :where [?produto :produto/preco ?preco]
+         [?produto :produto/nome ?nome]] db))
 
 
 
