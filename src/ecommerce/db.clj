@@ -51,3 +51,52 @@
   (d/q '[:find ?entidade
          :where [?entidade :produto/nome]] db))
 
+; no sql eh comum fazer:
+; String sql - "meu codigo sql"
+; conexao.query(sql)
+
+;esse aqui eh similar ao String sql
+; eh comum e voce pode querer extrair em um def ou let
+; porem... -q é notacao hungara... indica o TIPO... hum.. não parece ser legal
+; em clojure
+; vc vai encontrar esse padrao em alguns exemplos e documentacao
+; nao recomendamos notacao hungara dessa maneira, ainda menos abrevidada ;)
+
+(def todos-os-produtos-por-slug-fixo-q
+  '[:find ?entidade
+    :where [?entidade :produto/slug "/computador-novo"]])
+
+(defn todos-os-produtos-por-slug-fixo [db]
+  (d/q todos-os-produtos-por-slug-fixo-q db))
+
+; não estou usando notacao hungara e extract
+; eh comum no sql: String sql = "select * from where slug==::SLUG::"
+; conexao.query(sql, {::SLUG:: "/computador-novo"})
+(defn todos-os-produtos-por-slug [db slug]
+  (d/q '[:find ?entidade
+         :in $ ?slug-procurado                              ; proposital difernete da variavel de clojure para evitar erros
+         :where [?entidade :produto/slug ?slug-procurado]]
+       db slug))
+
+; ?entity => ?entidade => ?e => ?produto => ?p
+; se não vai usar, pode ser um _
+(defn todos-os-slugs [db]
+  (d/q '[:find ?slug
+         :where [_ :produto/slug ?slug]] db))
+
+(defn todos-os-produtos-por-preco [db]
+  (d/q '[:find ?nome, ?preco
+         :where [?produto :produto/preco ?preco]
+                [?produto :produto/nome ?nome]] db))
+
+
+
+
+
+
+
+
+
+
+
+
