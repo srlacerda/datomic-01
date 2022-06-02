@@ -42,7 +42,11 @@
              {:db/ident       :produto/preco
               :db/valueType   :db.type/bigdec
               :db/cardinality :db.cardinality/one
-              :db/doc         "O preco de um produto com precisao monetaria"}])
+              :db/doc         "O preco de um produto com precisao monetaria"}
+             {:db/ident       :produto/palavra-chave
+              :db/valueType   :db.type/string
+              :db/cardinality :db.cardinality/many}
+             ])
 
 (defn cria-schema [conn]
   (d/transact conn schema))
@@ -99,7 +103,7 @@
   (d/q '[:find ?nome, ?preco
          :keys nome, preco
          :where [?produto :produto/preco ?preco]
-                [?produto :produto/nome ?nome]] db))
+         [?produto :produto/nome ?nome]] db))
 
 ; estou sendo explicito nos campos 1 a 1
 (defn todos-os-produtos-por-preco [db]
@@ -108,7 +112,34 @@
          :where [?produto :produto/preco ?preco]
          [?produto :produto/nome ?nome]] db))
 
+(defn todos-os-produtos-por-preco [db preco-mimo-requisitado]
+  (d/q '[:find ?nome, ?preco
+         :in $, ?preco-minimo
+         :keys produto/nome, produto/preco
+         :where [?produto :produto/preco ?preco]
+         [(> ?preco ?preco-minimo)]
+         [?produto :produto/nome ?nome]
+         ]
+       db, preco-mimo-requisitado))
 
+; eu tenho 10mil... se eu tneho 1000 produtos com preco > 5000, so 10 produtos com quantidade < 10
+;passar por 10 mil
+;[(> preco 5000)]                                            ; => 5000 datom
+;[(> quantidade 10)]                                         ; => 10 datom
+;
+;;passar por 10 mil
+;[(> quantidade 10)]                                         ; => 10 datom
+;[(> preco 5000)]                                            ; => 10 datom
+
+; em geral vamos deixar as condicoes da mais restritivas pra menos restritiva...
+; pois o plano de ação somos nos quem tomamos
+
+
+(defn todos-os-produtos-por-palavra-chave [db palavra-chave-buscada]
+  (d/q '[:find (pull ?produto [*])
+         :in $ ?palavra-chave
+         :where [?produto :produto/palavra-chave ?palavra-chave]]
+    db palavra-chave-buscada))
 
 
 

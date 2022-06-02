@@ -38,4 +38,4 @@
 (pprint (count (db/todos-os-produtos (d/as-of (d/db conn) #inst "2022-06-01T15:06:31.626"))))
 
 
-;(db/apaga-banco)
+(db/apaga-banco)
